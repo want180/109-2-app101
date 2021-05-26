@@ -4,10 +4,10 @@ chinese$convert_minguo2western <- convert_minguo2western <- function(minguo_stri
   origin <- minguo_string
   
   revised <- {
-    stringr::str_extract(origin, "(?<=æ°‘åœ‹)[^ï¼‰\\)é¤˜å¹´]+") -> origin2
-    stringr::str_replace(origin2, "^[æ‹¾å]","ä¸€æ‹¾") -> origin3
-    stringr::str_replace_all(origin3, c("å‰"="-", "ç´„"=""))
-    # â—‹ (ç™¾)ï¼Œå…ƒ
+    stringr::str_extract(origin, "(?<=¥Á°ê)[^¡^\\)¾l¦~]+") -> origin2
+    stringr::str_replace(origin2, "^[¬B¤Q]","¤@¬B") -> origin3
+    stringr::str_replace_all(origin3, c("«e"="-", "¬ù"=""))
+    # ¡³ (¦Ê)¡A¤¸
   }
   
   arabics <- {
@@ -20,7 +20,7 @@ chinese$convert_minguo2western <- convert_minguo2western <- function(minguo_stri
   }
   
   firstDigit <- {
-    stringr::str_extract(non_arabics, "[å…ƒä¸€äºŒä¸‰å››äº”å…­ä¸ƒå…«ä¹å£¹è²³åƒè‚†ä¼é™¸æŸ’æŒç–]$") ->
+    stringr::str_extract(non_arabics, "[¤¸¤@¤G¤T¥|¤­¤»¤C¤K¤E³ü¶L°Ñ¸v¥î³°¬m®Ã¨h]$") ->
       firstDigit
     convert_chn2arabics(firstDigit) -> 
       firstDigit
@@ -29,9 +29,9 @@ chinese$convert_minguo2western <- convert_minguo2western <- function(minguo_stri
   
   tenth <- {
     stringr::str_extract(non_arabics,
-                         "[ä¸€äºŒä¸‰å››äº”å…­ä¸ƒå…«ä¹å£¹è²³åƒè‚†ä¼é™¸æŸ’æŒç–](?=[åæ‹¾]|ï¼$)") -> 
+                         "[¤@¤G¤T¥|¤­¤»¤C¤K¤E³ü¶L°Ñ¸v¥î³°¬m®Ã¨h](?=[¤Q¬B]|¢¯$)") -> 
       tenth
-    whichIs30 <- stringr::str_which(non_arabics,"å…")
+    whichIs30 <- stringr::str_which(non_arabics,"¤Ê")
     convert_chn2arabics(tenth) -> tenth
     tenth[whichIs30] <- "3"
     na_is_0(tenth)
@@ -39,7 +39,7 @@ chinese$convert_minguo2western <- convert_minguo2western <- function(minguo_stri
   
   hundredth <- {
     stringr::str_extract(non_arabics,
-                         "[ä¸€äºŒä¸‰å››äº”å…­ä¸ƒå…«ä¹å£¹è²³åƒè‚†ä¼é™¸æŸ’æŒç–](?=[ç™¾ä½°Oâ—‹])") -> 
+                         "[¤@¤G¤T¥|¤­¤»¤C¤K¤E³ü¶L°Ñ¸v¥î³°¬m®Ã¨h](?=[¦Ê¨ÕO¡³])") -> 
       hundredth
     convert_chn2arabics(hundredth) -> hundredth
     na_is_0(hundredth)
@@ -53,16 +53,16 @@ chinese$convert_minguo2western <- convert_minguo2western <- function(minguo_stri
 }
 
 chinese$convert_chnWesternYears <- convert_chnWesternYears <- function(chnWestYears){
-  stringr::str_remove(chnWestYears, "å¹´") -> .temp
+  stringr::str_remove(chnWestYears, "¦~") -> .temp
   convert_chn2arabics(.temp) -> .temp
   as.integer(.temp) -> westernYearInteger
   return(westernYearInteger)
 }
 
 chinese$convert2westernYears <- function(list_heritageYearsX){
-  pattern_mingou <- "æ°‘åœ‹"
-  pattern_chnWestern <- "ä¸€[ï¼Oä¸€äºŒä¸‰å››äº”å…­ä¸ƒå…«ä¹å]{3}"
-  pattern_jpn <- "æ—¥[æ²»æ“š]æ™‚[æœŸä»£]"
+  pattern_mingou <- "¥Á°ê"
+  pattern_chnWestern <- "¤@[¢¯O¤@¤G¤T¥|¤­¤»¤C¤K¤E¤Q]{3}"
+  pattern_jpn <- "¤é[ªv¾Ú]®É[´Á¥N]"
   
   whichAreMingou <- stringr::str_which(list_heritageYearsX, pattern_mingou)
   whichAreChnWestern <- stringr::str_which(list_heritageYearsX, pattern_chnWestern)
@@ -86,13 +86,13 @@ chinese$convert2westernYears <- function(list_heritageYearsX){
 # helpers
 
 convert_chn2arabics <- function(origin, naIs0 = T){
-  chineseNumber1 <- "ä¸€äºŒä¸‰å››äº”å…­ä¸ƒå…«ä¹"
-  chineseNumber2 <- "å£¹è²³åƒè‚†ä¼é™¸æŸ’æŒç–"
+  chineseNumber1 <- "¤@¤G¤T¥|¤­¤»¤C¤K¤E"
+  chineseNumber2 <- "³ü¶L°Ñ¸v¥î³°¬m®Ã¨h"
   chineseNumber1_char <- unlist(stringr::str_split(chineseNumber1,""))
   chineseNumber2_char <- unlist(stringr::str_split(chineseNumber2,""))
   
   replacement <- c(rep(as.character(1:9),2), "1")
-  names(replacement) <- c(chineseNumber1_char, chineseNumber2_char, "å…ƒ")
+  names(replacement) <- c(chineseNumber1_char, chineseNumber2_char, "¤¸")
   
   stringr::str_replace_all(origin, replacement) -> revised
   if(naIs0){
