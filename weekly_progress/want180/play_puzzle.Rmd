@@ -85,71 +85,80 @@ puzzle_guess <-function(){
   
   message(paste0('1.easy','2.medium','3.hard'))
   level <- readline("choose level: ")
-  pic<-get_original_pic(test)
+  original_pic<-get_original_pic(test)
   difficult <- c(3,5,9)
   lv<-difficult[as.numeric(level)]
-  play <-
+  puzzle<-get_puzzle(lv,original_pic)
+  time<- format_ISO8601(now(),usetz = T)
+  answer<-photo
   
+  return(timestamp(as.character(time)),
+         answer(answer),
+         opition(original_pic))
+  
+  
+    
 }
 
 
 get_original_pic <-function(test){
-  original_pic<-{
+
   maybe_image<-list()
   city<-grepl(test,heritageData$belongCity)
   for (x in seq_along(heritageData$belongCity)){
     if(city[x]==TRUE){
       maybe_image[[length(maybe_image)+1]]<-heritageData$representImage[x]
       }}
-    original_pic <-sample(maybe_image,1,replace = F)
-    }
+    original_pic <- sample(maybe_image,1,replace = F)
+    
     return(original_pic)
     }
 
 
 get_photo<-function(original_pic){
- photo<-{
   photo_URL<-as.character(original_pic)
   photo_URLencode<-URLencode(photo_URL)
   download.file(photo_URLencode,paste0('photo','.jpg'))
-  image_read(photo_URLencode)}
- return(photo)
+  photo<-image_read(photo_URLencode)
+  return(photo)
  }
   
  
-get_puzzle <- function(difficult,original_pic){
+get_puzzle <- function(lv,original_pic){
   photo<-get_photo(original_pic)
+  
   big<-image_info(photo)
   width <- big$width
   height <- big$height
   row_width<-width/lv
   col_height<-height/lv
-  puzzle_store<-list()
+  puzzle_store<-c()
   cut_row<-list()
   cut_col<-list()
-    for (i in 1:lv){
-      for (j in 1:lv) {
+    for (i in 0:(lv-1)){
+      for (j in 0:(lv-1)) {
         cut_row[length(cut_row)+1]<-row_width*i
         cut_col[length(cut_col)+1]<-col_height*j
       }
     }
     for ( k in 1:length(cut_row)){
-      puzzle_store[[length(puzzle_store)+1]]<-image_crop(photo,glue("{row_width}","X","{col_height}","+","{cut_row[k]}","+","{cut_col[k]}"))
-    }
+      puzzle_store[length(puzzle_store)+1]<-(image_crop(photo,glue("{row_width}","X","{col_height}","+","{cut_row[k]}","+","{cut_col[k]}")                                        ))}
+  stack<-list()
+  new_pic<-as.vector(puzzle_store)
+  order<-sample(new_pic,(lv^2),F)
+ for (g in 0:(lv-1)){
+   p=order[(1+(lv*g)):(lv*(g+1))]
+  stack[length(stack)+1]<-image_append(unlist(p),stack = F)
+ }
+  play_pic<-image_append(stack[1:length(stack)],attack=T)
   
-  }
   
+  return(puzzle)}
+
+
   
-  }
     
-    
-    
-      
-  }
-    
-  }
-}
-   
+
   
 
 
