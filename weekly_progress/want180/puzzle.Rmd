@@ -46,6 +46,7 @@ NewPic <- c(left_up,left_down,right_up,right_down)
 
 ```{r}
 #隨機打亂
+
 num <- sample(NewPic,4,FALSE)
 
 #黏貼

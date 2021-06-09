@@ -133,22 +133,23 @@ get_puzzle <- function(lv,original_pic){
   row_width<-width/lv
   col_height<-height/lv
   puzzle_store<-c()
-  cut_row<-list()
-  cut_col<-list()
+  cut_row<-c()
+  cut_col<-c()
     for (i in 0:(lv-1)){
       for (j in 0:(lv-1)) {
-        cut_row[length(cut_row)+1]<-row_width*i
-        cut_col[length(cut_col)+1]<-col_height*j
+        cut_row<-append(cut_row,row_width*i)
+        cut_col<-append(cut_col,col_height*j)
       }
     }
     for ( k in 1:length(cut_row)){
-      puzzle_store[length(puzzle_store)+1]<-(image_crop(photo,glue("{row_width}","X","{col_height}","+","{cut_row[k]}","+","{cut_col[k]}")                                        ))}
-  stack<-list()
-  new_pic<-as.vector(puzzle_store)
+      puzzle_store<-append(puzzle_store,(image_crop(photo,glue("{row_width}","X","{col_height}","+","{cut_row[k]}","+","{cut_col[k]}"))                                        ))}
+  stack<-c()
+  new_pic<-puzzle_store
   order<-sample(new_pic,(lv^2),F)
  for (g in 0:(lv-1)){
-   p=order[(1+(lv*g)):(lv*(g+1))]
-  stack[length(stack)+1]<-image_append(unlist(p),stack = F)
+   a=1+(lv*g)
+   b=lv*(g+1)
+   stack[length(stack)+1]<-image_append(order[a:b],stack = F)
  }
   play_pic<-image_append(stack[1:length(stack)],attack=T)
   
