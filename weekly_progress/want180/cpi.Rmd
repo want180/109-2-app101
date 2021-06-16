@@ -1,0 +1,114 @@
+---
+title: "Untitled"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+xfun::download_file("https://www.dropbox.com/s/ouurt80t6ailbif/PR0101A2Mc.csv?dl=1", mode="wb")
+```
+
+  * reopen with encoding = BIG5
+  
+```{r}
+library(readr)
+cpi <- read_csv("PR0101A2Mc.csv",
+locale = locale(encoding = "CP950"),
+skip = 3)
+
+library(dplyr)
+```
+```{r}
+#整理
+
+cpi_data<-c(raw_data=list(),
+    want_data=list(1:485),
+    new_col=list(1:485),
+    correlation=list(1:9))
+
+cpi_data$raw_data<-cpi
+
+```
+
+# 1.
+留下總指數與大類:
+總指數
+一.食物類
+二.衣著類
+三.居住類
+四.交通及通訊類
+五.醫藥保健類
+六.教養娛樂類
+七.雜項類
+
+
+```{r}
+#留下總指數與大項
+
+library(stringr)
+
+cpi_data$want_data<-cpi_data$raw_data%>%select(X1,總指數,matches('^[一二三四五六七]'))
+
+#處理缺失值
+
+is.na(cpi_data$want_data)
+```
+
+# 2.年物價上漲率
+與去年同期比的上漲率，如1982M3的年上漲率是
+$$\frac{1982M3-1981M3}{1981M3}$$
+
+```{r}
+time<-cpi_data$want_data[1]
+cpi_data$new_col<-c(
+  總指數=c(),
+一.食物類=c(),
+二.衣著類=c(),
+三.居住類=c(),
+四.交通及通訊類=c(),
+五.醫藥保健類=c(),
+六.教養娛樂類=c(),
+七.雜項類=c()
+  )
+
+for (row in 1:40){
+  for (month in 1:12){
+    cpi_data$new_col$總指數[month+row*12]<-(cpi_data$want_data$總指數[(month+row*12)]-(cpi_data$want_data$總指數[(month+((row-1)*12))]))/(cpi_data$want_data$總指數[(month+(row-1)*12)])
+  cpi_data$new_col$一.食物類[month+row*12]<-(cpi_data$want_data$一.食物類[(month+row*12)]-(cpi_data$want_data$一.食物類[(month+((row-1)*12))]))/(cpi_data$want_data$一.食物類[(month+(row-1)*12)])
+  cpi_data$new_col$二.衣著類[month+row*12]<-(cpi_data$want_data$二.衣著類[(month+row*12)]-(cpi_data$want_data$二.衣著類[(month+((row-1)*12))]))/(cpi_data$want_data$二.衣著類[(month+(row-1)*12)])
+  cpi_data$new_col$三.居住類[month+row*12]<-(cpi_data$want_data$三.居住類[(month+row*12)]-(cpi_data$want_data$三.居住類[(month+((row-1)*12))]))/(cpi_data$want_data$三.居住類[(month+(row-1)*12)])
+  cpi_data$new_col$四.交通及通訊類[month+row*12]<-(cpi_data$want_data$四.交通及通訊類[(month+row*12)]-(cpi_data$want_data$四.交通及通訊類[(month+((row-1)*12))]))/(cpi_data$want_data$四.交通及通訊類[(month+(row-1)*12)])
+  cpi_data$new_col$五.醫藥保健類[month+row*12]<-(cpi_data$want_data$五.醫藥保健類[(month+row*12)]-(cpi_data$want_data$五.醫藥保健類[(month+((row-1)*12))]))/(cpi_data$want_data$五.醫藥保健類[(month+(row-1)*12)])
+  cpi_data$new_col$六.教養娛樂類[month+row*12]<-(cpi_data$want_data$六.教養娛樂類[(month+row*12)]-(cpi_data$want_data$六.教養娛樂類[(month+((row-1)*12))]))/(cpi_data$want_data$六.教養娛樂類[(month+(row-1)*12)])
+  cpi_data$new_col$七.雜項類[month+row*12]<-(cpi_data$want_data$七.雜項類[(month+row*12)]-(cpi_data$want_data$七.雜項類[(month+((row-1)*12))]))/(cpi_data$want_data$七.雜項類[(month+(row-1)*12)])
+  }}
+
+
+```
+
+# 3. 相關
+
+`cor(x,y)`可計自兩數列的相關性，在七大類裡，何者年上漲率與總指數相關最接近1。
+
+```{r}
+as.data.frame(cpi_data$new_col)->dataframe
+names(cpi_data$correlation) <- c("X1" ,"總指數","一.食物類","二.衣著類","三.居住類","四.交通及通訊類","五.醫藥保健類","六.教養娛樂類","七.雜項類")
+
+dataframe %>% 
+  mutate(
+    across(
+      .cols = c(總指數:七.雜項類),
+      .fns = as.numeric
+    )
+  ) -> cpi_data$new_col
+cpi_data$correlation <- data.frame(X1=cpi_data$want_data$X1)
+for (k in 2:8) {
+  cpi_data$correlation[k-1]<-cor(cpi_data$new_col[1],cpi_data$new_col[k])
+}
+names(cpi$correlation) <- c("一.食物類","二.衣著類","三.居住類","四.交通及通訊類","五.醫藥保健類","六.教養娛樂類","七.雜項類")
+
+```
+
